@@ -1,53 +1,77 @@
-import React, { useState } from 'react';
+import {collection, doc, getDoc, addDoc, updateDoc} from "firebase/firestore";
+//import {getDocs, query, setDoc, where, deleteDoc} from "firebase/firestore";
+import React, { useEffect, useState } from 'react';
+import firebase, { db } from './firebase';
+import { async } from '@firebase/util';
 
 const AppForm = (props) => {
-    //////////////////// Create  fnCreate //////////////////////
-    const camposRegistro ={nombre:"", edad:"", genero:""}; //Estructura del objeto (Tabla)
-    const [objeto, setObjeto] = useState(camposRegistro); //Tabla o objeto
+    ///////////////////////////////////////////////////////////////
+    ////////////////////CREAR - fnCrear - Guardar//////////////////
+    ///////////////////////////////////////////////////////////////
+    const camposRegistro = {nombre:"", edad:"", genero:""};   //estructura tbL
+    const [objeto, setObjeto] = useState(camposRegistro);     //Tabla u objeto
 
-    const handleStatusChange = (e) => {
-        const {name, value} = e.target;
-        setObjeto({...objeto, [name]:value });
-        console.log(objeto);
-    };
-
-    const handleSubmit = (e) => {   
-        e.preventDefault();
-        //////// Registrar //////////
-        if(props.idActual === ""){
-            console.log(props.idActual);
-            if(validarForm()){
-                addDoc(collection(db, 'persona'), objeto); //CREAR
-                console.log('Se guardo...');
-                props.fnRead();
-            }else{
-                console.log('No se guardó...');
-            }
-        }else{
-        }
-        setObjeto(camposRegistro); // Limpiar objeto
-        console.log("Maneja envio");
+    const hanleStatusChange = (e) => {                        //Manejo cambios en input...
+        const {name, value} = e.target;                       //Capta lo que se escribe
+        setObjeto({...objeto, [name]:value });                //Asigna al objeto name y value
+        //console.log(objeto);                                //Ver en tiempo real
     }
 
-    const validarForm  = () => {
-        if(objeto.nombre ==="" || /^\s+$/.test(objeto.nombre)){
-            alert("Escriba nombres...");
-            return false;
-        }
-        return true;
-    };
+    const handleSubmit = async (e) => {                       //Manejo submit (emvio)
+        e.preventDefault();                                   //evitar por defecto (false)
+        //////////REGISTRAR////////////////////////////////////////
+        if(props.idActual === ""){
+            //console.log(props.idActual);                    //Verificar idActual
+            if(validarForm()){                                //Verificar
+                addDoc(collection(db, 'persona'), objeto);    //CREAR
+                console.log('Se guardo...');                  //Msj
+                props.fnRead();                               //Actualizar LECTURA BD
+            }else{
+                console.log('No se guardo...');
+            }
+        }else{
 
-    //////////////////// Update  fnUpdate //////////////////////
+        }
+        setObjeto(camposRegistro);                             //Limpiar objeto
+    }
+    /////////////////////////////VALIDACIÓN////////////////////////
+    const validarForm = () => {
+        if(objeto.nombre===""|| /^\s+$/.test(objeto.nombre)){
+            alert("Escriba nombres...");
+            return false;                                     //Si no tiene texto
+        }
+        return true;                                          //Si tiene texto
+    };
+    ///////////////////////////////////////////////////////////////
+    ////////////////////UPDATE - fnUpdate - Actualizar/////////////
+    ///////////////////////////////////////////////////////////////
+    //console.log("props.idActual", props.idActual);
+    useEffect(() => {
+
+    },[props.idActual]);
+
+    const obtenerDastosPorId = async (xId) =>{
+        
+    }
+    //console.log(objeto);
+
     return (
-        <div style={{background:"yellow", padding:"10px", margin:"10px"}}>
-            <h1>AppForm.js</h1>
-            <form onSubmit ={handleSubmit}>   
-                <input type ="text" name = "nombre" placeholder = "Escriba Completo..."
-                onChange = {handleStatusChange} value = {objeto.nombre}/> <br/>
-                <button>
-                    {props.idActual === ""? "Guarda" : "Actualizar"}
-                </button>
-            </form>
+        <div style={{background:"orange", padding:"10px", textAlign:"center"}}>
+        <h1>AppForm.js</h1>
+        <form onSubmit={handleSubmit}>
+            <input type="text" name="nombre" placeholder="Nombres..."
+            onChange={hanleStatusChange} value={objeto.nombre} /> <br/>
+
+            <input type="text" name="edad" placeholder="Edad..."
+            onChange={hanleStatusChange} value={objeto.edad} /> <br/>
+
+            <input type="text" name="genero" placeholder="Género..."
+            onChange={hanleStatusChange} value={objeto.genero} /> <br/>
+
+            <button>
+                {props.idActual === ""? "Guardar" : "Actualizar"}
+            </button>
+        </form>
         </div>
     )
 }
